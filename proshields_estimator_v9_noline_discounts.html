@@ -1,0 +1,852 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ProShields Estimator – v9</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 16px;
+      background: #f3f4f6;
+    }
+    .app {
+      max-width: 620px;
+      margin: 0 auto 32px auto;
+      background: #ffffff;
+      padding: 16px;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .header-title {
+      font-size: 20px;
+      margin: 0;
+    }
+    .header-sub {
+      font-size: 12px;
+      color: #6b7280;
+      margin: 4px 0 0 0;
+    }
+    .client-card {
+      background: #f9fafb;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #e5e7eb;
+      font-size: 13px;
+    }
+    .client-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 10px;
+    }
+    .client-grid .full {
+      grid-column: 1 / -1;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 2px;
+    }
+    input, select {
+      width: 100%;
+      padding: 4px 6px;
+      font-size: 12px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      box-sizing: border-box;
+    }
+    .top-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 6px 0 4px 0;
+      gap: 6px;
+    }
+    .project-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 4px 0;
+    }
+    .pbtn {
+      flex: 1 1 calc(50% - 6px);
+      padding: 6px 8px;
+      font-size: 12px;
+      border-radius: 999px;
+      border: 1px solid #cbd5f5;
+      background: #eef2ff;
+      color: #111827;
+      cursor: pointer;
+      text-align: center;
+      box-sizing: border-box;
+    }
+    .pbtn.small {
+      flex-basis: 100%;
+    }
+    .pbtn.active {
+      background: #0d9488;
+      color: white;
+      border-color: #0f766e;
+    }
+    .print-btn {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #0f766e;
+      background: #0d9488;
+      color: #fff;
+      font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .services-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 11px;
+    }
+    .services-table th,
+    .services-table td {
+      border: 1px solid #e5e7eb;
+      padding: 3px;
+      text-align: left;
+      vertical-align: middle;
+    }
+    .services-table th {
+      background: #f3f4f6;
+      font-weight: 600;
+    }
+    .service-col {
+      width: 32%;
+    }
+    .number-cell {
+      width: 60px;
+    }
+    .price-cell {
+      width: 80px;
+      text-align: right;
+      white-space: nowrap;
+    }
+    .remove-btn {
+      border: none;
+      background: transparent;
+      color: #ef4444;
+      font-size: 14px;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+    .remove-btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+    .add-row {
+      margin-top: 8px;
+      text-align: right;
+    }
+    .btn {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #0f766e;
+      background: #0d9488;
+      color: white;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .btn.secondary {
+      background: white;
+      color: #0f172a;
+      border-color: #cbd5f5;
+    }
+    .card {
+      background: #f9fafb;
+      border-radius: 10px;
+      padding: 10px;
+      margin-top: 10px;
+      border: 1px solid #e5e7eb;
+      font-size: 13px;
+    }
+    .card h2 {
+      font-size: 15px;
+      margin: 0 0 8px 0;
+    }
+    .line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin: 2px 0;
+    }
+    .big {
+      font-size: 17px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+    .small {
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+    .total-card {
+      margin-top: 10px;
+      background: #ecfeff;
+      border-color: #06b6d4;
+    }
+    .admin-toggle {
+      margin-top: 16px;
+      text-align: center;
+    }
+    .admin-panel {
+      margin-top: 12px;
+      display: none;
+    }
+    table.admin {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      margin-top: 6px;
+    }
+    table.admin th,
+    table.admin td {
+      border: 1px solid #e5e7eb;
+      padding: 4px;
+      text-align: left;
+    }
+    table.admin th {
+      background: #f3f4f6;
+      font-weight: 600;
+    }
+    .admin-input {
+      width: 100%;
+      padding: 4px 6px;
+      font-size: 11px;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      box-sizing: border-box;
+    }
+    .admin-actions {
+      text-align: right;
+      margin-top: 8px;
+    }
+
+    @media print {
+      .admin-toggle,
+      #toggleAdminBtn,
+      .print-btn {
+        display: none !important;
+      }
+      body {
+        background: #ffffff;
+      }
+      .app {
+        box-shadow: none;
+        margin: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <p class="header-title">ProShields Estimator</p>
+      <p class="header-sub">v9 – Service column wider. No line discounts. 10 lines per project.</p>
+    </div>
+
+    <div class="client-card">
+      <div class="client-grid">
+        <div class="full">
+          <label for="clientName">Client name</label>
+          <input id="clientName" type="text" placeholder="Client full name">
+        </div>
+        <div>
+          <label for="clientPhone">Phone</label>
+          <input id="clientPhone" type="tel" placeholder="(xxx) xxx-xxxx">
+        </div>
+        <div>
+          <label for="estimateDate">Date</label>
+          <input id="estimateDate" type="date">
+        </div>
+        <div class="full">
+          <label for="clientAddress">Address / Project location</label>
+          <input id="clientAddress" type="text" placeholder="Street, city, ZIP">
+        </div>
+        <div class="full">
+          <label for="estimatorName">Estimator</label>
+          <input id="estimatorName" type="text" placeholder="Your name">
+        </div>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <div style="flex:1;">
+        <label>Project type (main category)</label>
+      </div>
+      <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+    </div>
+
+    <div class="project-buttons">
+      <button class="pbtn small" data-template="empty" data-label="New / Empty">New / Empty</button>
+      <button class="pbtn" data-template="screenRoom" data-label="Screen Room">Screen Room</button>
+      <button class="pbtn" data-template="poolEnclosure" data-label="Pool Enclosure / Screen Cage">Pool Enclosure / Screen Cage</button>
+      <button class="pbtn" data-template="pergola" data-label="Pergola">Pergola</button>
+      <button class="pbtn" data-template="lanai" data-label="Lanai">Lanai</button>
+      <button class="pbtn" data-template="carport" data-label="Carport">Carport</button>
+      <button class="pbtn" data-template="sunroom" data-label="Sunroom">Sunroom</button>
+      <button class="pbtn" data-template="patioRoof" data-label="Patio Roof">Patio Roof</button>
+      <button class="pbtn" data-template="motorized" data-label="Motorized Screen Cage Pergola">Motorized Screen Cage Pergola</button>
+      <button class="pbtn" data-template="custom" data-label="Custom">Custom</button>
+    </div>
+    <div class="small" id="currentProjectText">
+      Current project: New / Empty
+    </div>
+
+    <table class="services-table" id="servicesTable">
+      <thead>
+        <tr>
+          <th class="service-col">Service</th>
+          <th style="width: 8%;">Width</th>
+          <th style="width: 8%;">Length</th>
+          <th style="width: 8%;">Height</th>
+          <th style="width: 8%;">Qty</th>
+          <th style="width: 13%;">Unit type</th>
+          <th class="price-cell">Line total</th>
+          <th style="width: 4%;"></th>
+        </tr>
+      </thead>
+      <tbody id="lineItemsBody">
+      </tbody>
+    </table>
+    <div class="add-row">
+      <button class="btn secondary" id="addRowBtn">+ Add service</button>
+    </div>
+
+    <div class="card">
+      <h2>Totals & Overall Discount</h2>
+      <div class="line">
+        <span>Subtotal (before discount)</span>
+        <span id="subtotalText">$0.00</span>
+      </div>
+
+      <div class="line" style="gap:8px;">
+        <div style="flex:1;">
+          <label for="globalDiscountInput">Extra discount % on total</label>
+          <input type="number" id="globalDiscountInput" min="0" max="100" step="1" value="0">
+        </div>
+        <div style="flex:1;">
+          <label>Discount amount</label>
+          <div style="text-align:right;font-size:13px;" id="globalDiscountAmountText">$0.00</div>
+        </div>
+      </div>
+
+      <div class="line big">
+        <span>Total after discount</span>
+        <span id="grandTotalText">$0.00</span>
+      </div>
+      <div class="small">
+        Use the discount % only at the end if you want to close the deal.
+      </div>
+    </div>
+
+    <div class="card total-card">
+      <div class="line big">
+        <span>Total to say to client</span>
+        <span id="clientTotalText">$0.00</span>
+      </div>
+      <div class="small">
+        You can round mentally before saying it (ex: 8,945 → 8,900 or 8,950).
+      </div>
+    </div>
+
+    <div class="admin-toggle">
+      <button class="btn secondary" id="toggleAdminBtn">Show admin (edit services & prices)</button>
+    </div>
+
+    <div class="admin-panel" id="adminPanel">
+      <div class="card">
+        <h2 style="margin-top:0;">Admin – Services, Prices</h2>
+        <div class="small">
+          Aquí editas TODO: nombre del servicio, unidad (sq ft, linear ft, each, etc.) y precio por unidad.
+          Mapa sugerido (puedes ignorarlo si quieres):
+          <br>• SR line 1–10 = Screen Room
+          <br>• PE line 1–10 = Pool Enclosure / Screen Cage
+          <br>• PG line 1–10 = Pergola
+          <br>• LN line 1–10 = Lanai
+          <br>• CP line 1–10 = Carport
+          <br>• SN line 1–10 = Sunroom
+          <br>• PR line 1–10 = Patio Roof
+          <br>• MP line 1–10 = Motorized Screen Cage Pergola
+          <br>• CU line 1–10 = Custom
+        </div>
+        <table class="admin">
+          <thead>
+            <tr>
+              <th style="width:40%;">Service name</th>
+              <th style="width:25%;">Unit label</th>
+              <th style="width:20%;">Unit price</th>
+            </tr>
+          </thead>
+          <tbody id="servicesAdminBody"></tbody>
+        </table>
+
+        <div class="admin-actions">
+          <button class="btn secondary" id="resetBtn">Reset to default</button>
+          <button class="btn" id="saveBtn">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ADMIN_PIN = "2580";
+
+    const defaultServices = [
+      { id: "svc0", name: "SR line 1", unitLabel: "", unitPrice: 1 },
+      { id: "svc1", name: "SR line 2", unitLabel: "", unitPrice: 1 },
+      { id: "svc2", name: "SR line 3", unitLabel: "", unitPrice: 1 },
+      { id: "svc3", name: "SR line 4", unitLabel: "", unitPrice: 1 },
+      { id: "svc4", name: "SR line 5", unitLabel: "", unitPrice: 1 },
+      { id: "svc5", name: "SR line 6", unitLabel: "", unitPrice: 1 },
+      { id: "svc6", name: "SR line 7", unitLabel: "", unitPrice: 1 },
+      { id: "svc7", name: "SR line 8", unitLabel: "", unitPrice: 1 },
+      { id: "svc8", name: "SR line 9", unitLabel: "", unitPrice: 1 },
+      { id: "svc9", name: "SR line 10", unitLabel: "", unitPrice: 1 },
+      { id: "svc10", name: "PE line 1", unitLabel: "", unitPrice: 1 },
+      { id: "svc11", name: "PE line 2", unitLabel: "", unitPrice: 1 },
+      { id: "svc12", name: "PE line 3", unitLabel: "", unitPrice: 1 },
+      { id: "svc13", name: "PE line 4", unitLabel: "", unitPrice: 1 },
+      { id: "svc14", name: "PE line 5", unitLabel: "", unitPrice: 1 },
+      { id: "svc15", name: "PE line 6", unitLabel: "", unitPrice: 1 },
+      { id: "svc16", name: "PE line 7", unitLabel: "", unitPrice: 1 },
+      { id: "svc17", name: "PE line 8", unitLabel: "", unitPrice: 1 },
+      { id: "svc18", name: "PE line 9", unitLabel: "", unitPrice: 1 },
+      { id: "svc19", name: "PE line 10", unitLabel: "", unitPrice: 1 },
+      { id: "svc20", name: "PG line 1", unitLabel: "", unitPrice: 1 },
+      { id: "svc21", name: "PG line 2", unitLabel: "", unitPrice: 1 },
+      { id: "svc22", name: "PG line 3", unitLabel: "", unitPrice: 1 },
+      { id: "svc23", name: "PG line 4", unitLabel: "", unitPrice: 1 },
+      { id: "svc24", name: "PG line 5", unitLabel: "", unitPrice: 1 },
+      { id: "svc25", name: "PG line 6", unitLabel: "", unitPrice: 1 },
+      { id: "svc26", name: "PG line 7", unitLabel: "", unitPrice: 1 },
+      { id: "svc27", name: "PG line 8", unitLabel: "", unitPrice: 1 },
+      { id: "svc28", name: "PG line 9", unitLabel: "", unitPrice: 1 },
+      { id: "svc29", name: "PG line 10", unitLabel: "", unitPrice: 1 },
+      { id: "svc30", name: "LN line 1", unitLabel: "", unitPrice: 1 },
+      { id: "svc31", name: "LN line 2", unitLabel: "", unitPrice: 1 },
+      { id: "svc32", name: "LN line 3", unitLabel: "", unitPrice: 1 },
+      { id: "svc33", name: "LN line 4", unitLabel: "", unitPrice: 1 },
+      { id: "svc34", name: "LN line 5", unitLabel: "", unitPrice: 1 },
+      { id: "svc35", name: "LN line 6", unitLabel: "", unitPrice: 1 },
+      { id: "svc36", name: "LN line 7", unitLabel: "", unitPrice: 1 },
+      { id: "svc37", name: "LN line 8", unitLabel: "", unitPrice: 1 },
+      { id: "svc38", name: "LN line 9", unitLabel: "", unitPrice: 1 },
+      { id: "svc39", name: "LN line 10", unitLabel: "", unitPrice: 1 },
+      { id: "svc40", name: "CP line 1", unitLabel: "", unitPrice: 1 },
+      { id: "svc41", name: "CP line 2", unitLabel: "", unitPrice: 1 },
+      { id: "svc42", name: "CP line 3", unitLabel: "", unitPrice: 1 },
+      { id: "svc43", name: "CP line 4", unitLabel: "", unitPrice: 1 },
+      { id: "svc44", name: "CP line 5", unitLabel: "", unitPrice: 1 },
+      { id: "svc45", name: "CP line 6", unitLabel: "", unitPrice: 1 },
+      { id: "svc46", name: "CP line 7", unitLabel: "", unitPrice: 1 },
+      { id: "svc47", name: "CP line 8", unitLabel: "", unitPrice: 1 },
+      { id: "svc48", name: "CP line 9", unitLabel: "", unitPrice: 1 },
+      { id: "svc49", name: "CP line 10", unitLabel: "", unitPrice: 1 },
+      { id: "svc50", name: "SN line 1", unitLabel: "", unitPrice: 1 },
+      { id: "svc51", name: "SN line 2", unitLabel: "", unitPrice: 1 },
+      { id: "svc52", name: "SN line 3", unitLabel: "", unitPrice: 1 },
+      { id: "svc53", name: "SN line 4", unitLabel: "", unitPrice: 1 },
+      { id: "svc54", name: "SN line 5", unitLabel: "", unitPrice: 1 },
+      { id: "svc55", name: "SN line 6", unitLabel: "", unitPrice: 1 },
+      { id: "svc56", name: "SN line 7", unitLabel: "", unitPrice: 1 },
+      { id: "svc57", name: "SN line 8", unitLabel: "", unitPrice: 1 },
+      { id: "svc58", name: "SN line 9", unitLabel: "", unitPrice: 1 },
+      { id: "svc59", name: "SN line 10", unitLabel: "", unitPrice: 1 },
+      { id: "svc60", name: "PR line 1", unitLabel: "", unitPrice: 1 },
+      { id: "svc61", name: "PR line 2", unitLabel: "", unitPrice: 1 },
+      { id: "svc62", name: "PR line 3", unitLabel: "", unitPrice: 1 },
+      { id: "svc63", name: "PR line 4", unitLabel: "", unitPrice: 1 },
+      { id: "svc64", name: "PR line 5", unitLabel: "", unitPrice: 1 },
+      { id: "svc65", name: "PR line 6", unitLabel: "", unitPrice: 1 },
+      { id: "svc66", name: "PR line 7", unitLabel: "", unitPrice: 1 },
+      { id: "svc67", name: "PR line 8", unitLabel: "", unitPrice: 1 },
+      { id: "svc68", name: "PR line 9", unitLabel: "", unitPrice: 1 },
+      { id: "svc69", name: "PR line 10", unitLabel: "", unitPrice: 1 },
+      { id: "svc70", name: "MP line 1", unitLabel: "", unitPrice: 1 },
+      { id: "svc71", name: "MP line 2", unitLabel: "", unitPrice: 1 },
+      { id: "svc72", name: "MP line 3", unitLabel: "", unitPrice: 1 },
+      { id: "svc73", name: "MP line 4", unitLabel: "", unitPrice: 1 },
+      { id: "svc74", name: "MP line 5", unitLabel: "", unitPrice: 1 },
+      { id: "svc75", name: "MP line 6", unitLabel: "", unitPrice: 1 },
+      { id: "svc76", name: "MP line 7", unitLabel: "", unitPrice: 1 },
+      { id: "svc77", name: "MP line 8", unitLabel: "", unitPrice: 1 },
+      { id: "svc78", name: "MP line 9", unitLabel: "", unitPrice: 1 },
+      { id: "svc79", name: "MP line 10", unitLabel: "", unitPrice: 1 },
+      { id: "svc80", name: "CU line 1", unitLabel: "", unitPrice: 1 },
+      { id: "svc81", name: "CU line 2", unitLabel: "", unitPrice: 1 },
+      { id: "svc82", name: "CU line 3", unitLabel: "", unitPrice: 1 },
+      { id: "svc83", name: "CU line 4", unitLabel: "", unitPrice: 1 },
+      { id: "svc84", name: "CU line 5", unitLabel: "", unitPrice: 1 },
+      { id: "svc85", name: "CU line 6", unitLabel: "", unitPrice: 1 },
+      { id: "svc86", name: "CU line 7", unitLabel: "", unitPrice: 1 },
+      { id: "svc87", name: "CU line 8", unitLabel: "", unitPrice: 1 },
+      { id: "svc88", name: "CU line 9", unitLabel: "", unitPrice: 1 },
+      { id: "svc89", name: "CU line 10", unitLabel: "", unitPrice: 1 }
+    ];
+
+    const templates = {
+      empty: [],
+      screenRoom: [{ serviceId: "svc0", unitType: "each" }, { serviceId: "svc1", unitType: "each" }, { serviceId: "svc2", unitType: "each" }, { serviceId: "svc3", unitType: "each" }, { serviceId: "svc4", unitType: "each" }, { serviceId: "svc5", unitType: "each" }, { serviceId: "svc6", unitType: "each" }, { serviceId: "svc7", unitType: "each" }, { serviceId: "svc8", unitType: "each" }, { serviceId: "svc9", unitType: "each" }],
+      poolEnclosure: [{ serviceId: "svc10", unitType: "each" }, { serviceId: "svc11", unitType: "each" }, { serviceId: "svc12", unitType: "each" }, { serviceId: "svc13", unitType: "each" }, { serviceId: "svc14", unitType: "each" }, { serviceId: "svc15", unitType: "each" }, { serviceId: "svc16", unitType: "each" }, { serviceId: "svc17", unitType: "each" }, { serviceId: "svc18", unitType: "each" }, { serviceId: "svc19", unitType: "each" }],
+      pergola: [{ serviceId: "svc20", unitType: "each" }, { serviceId: "svc21", unitType: "each" }, { serviceId: "svc22", unitType: "each" }, { serviceId: "svc23", unitType: "each" }, { serviceId: "svc24", unitType: "each" }, { serviceId: "svc25", unitType: "each" }, { serviceId: "svc26", unitType: "each" }, { serviceId: "svc27", unitType: "each" }, { serviceId: "svc28", unitType: "each" }, { serviceId: "svc29", unitType: "each" }],
+      lanai: [{ serviceId: "svc30", unitType: "each" }, { serviceId: "svc31", unitType: "each" }, { serviceId: "svc32", unitType: "each" }, { serviceId: "svc33", unitType: "each" }, { serviceId: "svc34", unitType: "each" }, { serviceId: "svc35", unitType: "each" }, { serviceId: "svc36", unitType: "each" }, { serviceId: "svc37", unitType: "each" }, { serviceId: "svc38", unitType: "each" }, { serviceId: "svc39", unitType: "each" }],
+      carport: [{ serviceId: "svc40", unitType: "each" }, { serviceId: "svc41", unitType: "each" }, { serviceId: "svc42", unitType: "each" }, { serviceId: "svc43", unitType: "each" }, { serviceId: "svc44", unitType: "each" }, { serviceId: "svc45", unitType: "each" }, { serviceId: "svc46", unitType: "each" }, { serviceId: "svc47", unitType: "each" }, { serviceId: "svc48", unitType: "each" }, { serviceId: "svc49", unitType: "each" }],
+      sunroom: [{ serviceId: "svc50", unitType: "each" }, { serviceId: "svc51", unitType: "each" }, { serviceId: "svc52", unitType: "each" }, { serviceId: "svc53", unitType: "each" }, { serviceId: "svc54", unitType: "each" }, { serviceId: "svc55", unitType: "each" }, { serviceId: "svc56", unitType: "each" }, { serviceId: "svc57", unitType: "each" }, { serviceId: "svc58", unitType: "each" }, { serviceId: "svc59", unitType: "each" }],
+      patioRoof: [{ serviceId: "svc60", unitType: "each" }, { serviceId: "svc61", unitType: "each" }, { serviceId: "svc62", unitType: "each" }, { serviceId: "svc63", unitType: "each" }, { serviceId: "svc64", unitType: "each" }, { serviceId: "svc65", unitType: "each" }, { serviceId: "svc66", unitType: "each" }, { serviceId: "svc67", unitType: "each" }, { serviceId: "svc68", unitType: "each" }, { serviceId: "svc69", unitType: "each" }],
+      motorized: [{ serviceId: "svc70", unitType: "each" }, { serviceId: "svc71", unitType: "each" }, { serviceId: "svc72", unitType: "each" }, { serviceId: "svc73", unitType: "each" }, { serviceId: "svc74", unitType: "each" }, { serviceId: "svc75", unitType: "each" }, { serviceId: "svc76", unitType: "each" }, { serviceId: "svc77", unitType: "each" }, { serviceId: "svc78", unitType: "each" }, { serviceId: "svc79", unitType: "each" }],
+      custom: [{ serviceId: "svc80", unitType: "each" }, { serviceId: "svc81", unitType: "each" }, { serviceId: "svc82", unitType: "each" }, { serviceId: "svc83", unitType: "each" }, { serviceId: "svc84", unitType: "each" }, { serviceId: "svc85", unitType: "each" }, { serviceId: "svc86", unitType: "each" }, { serviceId: "svc87", unitType: "each" }, { serviceId: "svc88", unitType: "each" }, { serviceId: "svc89", unitType: "each" }]
+    };
+
+    const STORAGE_KEY = "proshields_estimator_config_v11";
+
+    function loadConfig() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [...defaultServices];
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed) || parsed.length === 0) throw new Error("bad");
+        return parsed;
+      } catch (e) {
+        return [...defaultServices];
+      }
+    }
+
+    function saveConfig(services) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(services));
+    }
+
+    let services = loadConfig();
+
+    const lineItemsBody = document.getElementById("lineItemsBody");
+    const addRowBtn = document.getElementById("addRowBtn");
+    const projectButtons = document.querySelectorAll(".pbtn");
+    const currentProjectText = document.getElementById("currentProjectText");
+
+    const subtotalText = document.getElementById("subtotalText");
+    const globalDiscountInput = document.getElementById("globalDiscountInput");
+    const globalDiscountAmountText = document.getElementById("globalDiscountAmountText");
+    const grandTotalText = document.getElementById("grandTotalText");
+    const clientTotalText = document.getElementById("clientTotalText");
+
+    const toggleAdminBtn = document.getElementById("toggleAdminBtn");
+    const adminPanel = document.getElementById("adminPanel");
+    const servicesAdminBody = document.getElementById("servicesAdminBody");
+    const saveBtn = document.getElementById("saveBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    function formatMoney(v) {
+      return "$" + v.toFixed(2);
+    }
+
+    function getServiceById(id) {
+      return services.find(s => s.id === id) || services[0];
+    }
+
+    function createLineRow(serviceId, initialUnitType) {
+      const tr = document.createElement("tr");
+
+      const tdService = document.createElement("td");
+      tdService.className = "service-col";
+      const select = document.createElement("select");
+      services.forEach(svc => {
+        const opt = document.createElement("option");
+        opt.value = svc.id;
+        opt.textContent = svc.name;
+        select.appendChild(opt);
+      });
+      if (serviceId) select.value = serviceId;
+      tdService.appendChild(select);
+
+      const tdWidth = document.createElement("td");
+      const widthInput = document.createElement("input");
+      widthInput.type = "number";
+      widthInput.min = "0";
+      widthInput.step = "0.01";
+      widthInput.className = "number-cell";
+      tdWidth.appendChild(widthInput);
+
+      const tdLength = document.createElement("td");
+      const lengthInput = document.createElement("input");
+      lengthInput.type = "number";
+      lengthInput.min = "0";
+      lengthInput.step = "0.01";
+      lengthInput.className = "number-cell";
+      tdLength.appendChild(lengthInput);
+
+      const tdHeight = document.createElement("td");
+      const heightInput = document.createElement("input");
+      heightInput.type = "number";
+      heightInput.min = "0";
+      heightInput.step = "0.01";
+      heightInput.className = "number-cell";
+      tdHeight.appendChild(heightInput);
+
+      const tdQty = document.createElement("td");
+      const qtyInput = document.createElement("input");
+      qtyInput.type = "number";
+      qtyInput.min = "0";
+      qtyInput.step = "0.01";
+      qtyInput.className = "number-cell";
+      tdQty.appendChild(qtyInput);
+
+      const tdUnitType = document.createElement("td");
+      const unitTypeSelect = document.createElement("select");
+      [
+        { value: "each", label: "each" },
+        { value: "sqft_rect", label: "sq ft (W x L)" },
+        { value: "sqft_qty", label: "sq ft (Qty)" },
+        { value: "linear", label: "linear ft" }
+      ].forEach(optDef => {
+        const opt = document.createElement("option");
+        opt.value = optDef.value;
+        opt.textContent = optDef.label;
+        unitTypeSelect.appendChild(opt);
+      });
+      unitTypeSelect.value = initialUnitType || "each";
+      tdUnitType.appendChild(unitTypeSelect);
+
+      const tdLineTotal = document.createElement("td");
+      tdLineTotal.className = "price-cell";
+
+      const tdRemove = document.createElement("td");
+      const removeBtn = document.createElement("button");
+      removeBtn.textContent = "×";
+      removeBtn.className = "remove-btn";
+      tdRemove.appendChild(removeBtn);
+
+      tr.appendChild(tdService);
+      tr.appendChild(tdWidth);
+      tr.appendChild(tdLength);
+      tr.appendChild(tdHeight);
+      tr.appendChild(tdQty);
+      tr.appendChild(tdUnitType);
+      tr.appendChild(tdLineTotal);
+      tr.appendChild(tdRemove);
+
+      lineItemsBody.appendChild(tr);
+
+      function onAnyChange() {
+        calculateTotals();
+      }
+
+      select.addEventListener("change", onAnyChange);
+      widthInput.addEventListener("input", onAnyChange);
+      lengthInput.addEventListener("input", onAnyChange);
+      heightInput.addEventListener("input", onAnyChange);
+      qtyInput.addEventListener("input", onAnyChange);
+      unitTypeSelect.addEventListener("change", onAnyChange);
+
+      removeBtn.addEventListener("click", () => {
+        if (lineItemsBody.children.length > 1) {
+          tr.remove();
+          calculateTotals();
+        }
+      });
+
+      calculateTotals();
+    }
+
+    function calculateTotals() {
+      let subtotal = 0;
+
+      Array.from(lineItemsBody.children).forEach(tr => {
+        const select = tr.children[0].querySelector("select");
+        const widthInput = tr.children[1].querySelector("input");
+        const lengthInput = tr.children[2].querySelector("input");
+        const heightInput = tr.children[3].querySelector("input");
+        const qtyInput = tr.children[4].querySelector("input");
+        const unitTypeSelect = tr.children[5].querySelector("select");
+        const lineTotalCell = tr.children[6];
+
+        const svc = getServiceById(select.value);
+        const price = parseFloat(svc.unitPrice) || 0;
+
+        const w = parseFloat(widthInput.value) || 0;
+        const l = parseFloat(lengthInput.value) || 0;
+        const h = parseFloat(heightInput.value) || 0; // referencia solo
+        const qtyField = parseFloat(qtyInput.value) || 0;
+        const unitType = unitTypeSelect.value;
+
+        let qty;
+        if (unitType === "sqft_rect") {
+          qty = w * l;
+        } else {
+          qty = qtyField;
+        }
+
+        const lineSub = price * qty;
+        subtotal += lineSub;
+
+        lineTotalCell.textContent = formatMoney(lineSub);
+      });
+
+      subtotalText.textContent = formatMoney(subtotal);
+
+      const globalPct = parseFloat(globalDiscountInput.value) || 0;
+      const globalDisc = subtotal * (globalPct / 100);
+      const grandTotal = subtotal - globalDisc;
+
+      globalDiscountAmountText.textContent = "-" + formatMoney(globalDisc);
+      grandTotalText.textContent = formatMoney(grandTotal);
+      clientTotalText.textContent = formatMoney(grandTotal);
+    }
+
+    function populateAdminTable() {
+      servicesAdminBody.innerHTML = "";
+      services.forEach((svc, index) => {
+        const tr = document.createElement("tr");
+
+        const tdName = document.createElement("td");
+        const nameInput = document.createElement("input");
+        nameInput.type = "text";
+        nameInput.value = svc.name;
+        nameInput.className = "admin-input";
+        nameInput.dataset.index = index;
+        nameInput.dataset.field = "name";
+        tdName.appendChild(nameInput);
+
+        const tdUnit = document.createElement("td");
+        const unitInput = document.createElement("input");
+        unitInput.type = "text";
+        unitInput.value = svc.unitLabel || "";
+        unitInput.placeholder = "sq ft / linear ft / each";
+        unitInput.className = "admin-input";
+        unitInput.dataset.index = index;
+        unitInput.dataset.field = "unitLabel";
+        tdUnit.appendChild(unitInput);
+
+        const tdPrice = document.createElement("td");
+        const priceInput = document.createElement("input");
+        priceInput.type = "number";
+        priceInput.step = "0.01";
+        priceInput.min = "0";
+        priceInput.value = svc.unitPrice;
+        priceInput.className = "admin-input";
+        priceInput.dataset.index = index;
+        priceInput.dataset.field = "unitPrice";
+        tdPrice.appendChild(priceInput);
+
+        tr.appendChild(tdName);
+        tr.appendChild(tdUnit);
+        tr.appendChild(tdPrice);
+        servicesAdminBody.appendChild(tr);
+      });
+    }
+
+    function readAdminTable() {
+      const inputs = servicesAdminBody.querySelectorAll(".admin-input");
+      inputs.forEach(input => {
+        const index = parseInt(input.dataset.index, 10);
+        const field = input.dataset.field;
+        if (!services[index]) return;
+        if (field === "unitPrice") {
+          services[index][field] = parseFloat(input.value) || 0;
+        } else {
+          services[index][field] = input.value;
+        }
+      });
+    }
+
+    function clearActiveButtons() {
+      projectButtons.forEach(b => b.classList.remove("active"));
+    }
+
+    function applyTemplate(key, labelText) {
+      clearActiveButtons();
+      projectButtons.forEach(b => {
+        if (b.dataset.template === key) {
+          b.classList.add("active");
+        }
+      });
+
+      currentProjectText.textContent = "Current project: " + (labelText || "");
+
+      lineItemsBody.innerHTML = "";
+      const defs = templates[key] || [];
+      if (!defs.length) {
+        createLineRow();
+      } else {
+        defs.forEach(def => {
+          createLineRow(def.serviceId, def.unitType);
+        });
+      }
+      calculateTotals();
+    }
+
+    addRowBtn.addEventListener("click", () => {
+      createLineRow();
+      calculateTotals();
+    });
+
+    globalDiscountInput.addEventListener("input", calculateTotals);
+
+    projectButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const key = btn.dataset.template;
+        const label = btn.dataset.label || btn.textContent.trim();
+        applyTemplate(key, label);
+      });
+    });
+
+    toggleAdminBtn.addEventListener("click", () => {
+      const visible = adminPanel.style.display === "block";
+      if (visible) {
+        adminPanel.style.display = "none";
+        toggleAdminBtn.textContent = "Show admin (edit services & prices)";
+        return;
+      }
+      const pin = prompt("Enter admin PIN:");
+      if (pin === null) return;
+      if (pin === ADMIN_PIN) {
+        adminPanel.style.display = "block";
+        toggleAdminBtn.textContent = "Hide admin";
+        populateAdminTable();
+      } else {
+        alert("Incorrect PIN");
+      }
+    });
+
+    saveBtn.addEventListener("click", () => {
+      readAdminTable();
+      saveConfig(services);
+
+      const activeButton = document.querySelector(".pbtn.active");
+      const activeKey = activeButton ? activeButton.dataset.template : "empty";
+      const activeLabel = activeButton ? activeButton.dataset.label : (activeButton ? activeButton.textContent.trim() : "");
+
+      applyTemplate(activeKey, activeLabel);
+      alert("Changes saved on this device.");
+    });
+
+    resetBtn.addEventListener("click", () => {
+      if (!confirm("Reset all services to default with generic names and price = 1?")) return;
+      services = [...defaultServices];
+      saveConfig(services);
+      populateAdminTable();
+      applyTemplate("empty", "New / Empty");
+      calculateTotals();
+    });
+
+    (function init() {
+      createLineRow();
+      calculateTotals();
+      applyTemplate("empty", "New / Empty");
+    })();
+  </script>
+</body>
+</html>
