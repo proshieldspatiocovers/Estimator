@@ -1,0 +1,812 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ProShields Estimator – Admin PIN</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 16px;
+      background: #f3f4f6;
+    }
+    .app {
+      max-width: 620px;
+      margin: 0 auto 32px auto;
+      background: #ffffff;
+      padding: 16px;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .header-title {
+      font-size: 20px;
+      margin: 0;
+    }
+    .header-sub {
+      font-size: 12px;
+      color: #6b7280;
+      margin: 4px 0 0 0;
+    }
+    .project-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 6px 0;
+    }
+    .pbtn {
+      flex: 1 1 calc(50% - 6px);
+      padding: 6px 8px;
+      font-size: 12px;
+      border-radius: 999px;
+      border: 1px solid #cbd5f5;
+      background: #eef2ff;
+      color: #111827;
+      cursor: pointer;
+      text-align: center;
+      box-sizing: border-box;
+    }
+    .pbtn.small {
+      flex-basis: 100%;
+    }
+    .pbtn.active {
+      background: #0d9488;
+      color: white;
+      border-color: #0f766e;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+    select, input {
+      width: 100%;
+      padding: 4px 6px;
+      font-size: 12px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      box-sizing: border-box;
+    }
+    .services-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 11px;
+    }
+    .services-table th,
+    .services-table td {
+      border: 1px solid #e5e7eb;
+      padding: 3px;
+      text-align: left;
+      vertical-align: middle;
+    }
+    .services-table th {
+      background: #f3f4f6;
+      font-weight: 600;
+    }
+    .number-cell {
+      width: 60px;
+    }
+    .price-cell {
+      width: 70px;
+      text-align: right;
+      white-space: nowrap;
+    }
+    .remove-btn {
+      border: none;
+      background: transparent;
+      color: #ef4444;
+      font-size: 14px;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+    .remove-btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+    .add-row {
+      margin-top: 8px;
+      text-align: right;
+    }
+    .btn {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #0f766e;
+      background: #0d9488;
+      color: white;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .btn.secondary {
+      background: white;
+      color: #0f172a;
+      border-color: #cbd5f5;
+    }
+    .card {
+      background: #f9fafb;
+      border-radius: 10px;
+      padding: 10px;
+      margin-top: 10px;
+      border: 1px solid #e5e7eb;
+      font-size: 13px;
+    }
+    .card h2 {
+      font-size: 15px;
+      margin: 0 0 8px 0;
+    }
+    .line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin: 2px 0;
+    }
+    .big {
+      font-size: 17px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+    .small {
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+    .total-card {
+      margin-top: 10px;
+      background: #ecfeff;
+      border-color: #06b6d4;
+    }
+    .admin-toggle {
+      margin-top: 16px;
+      text-align: center;
+    }
+    .admin-panel {
+      margin-top: 12px;
+      display: none;
+    }
+    table.admin {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+    table.admin th,
+    table.admin td {
+      border: 1px solid #e5e7eb;
+      padding: 4px;
+      text-align: left;
+    }
+    table.admin th {
+      background: #f3f4f6;
+      font-weight: 600;
+    }
+    .admin-input {
+      width: 100%;
+      padding: 4px 6px;
+      font-size: 11px;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      box-sizing: border-box;
+    }
+    .admin-actions {
+      text-align: right;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <p class="header-title">ProShields Estimator</p>
+      <p class="header-sub">Elige tipo de proyecto (botón). Admin protegido con contraseña.</p>
+    </div>
+
+    <label>Tipo de proyecto (categoría principal)</label>
+    <div class="project-buttons">
+      <button class="pbtn small" data-template="empty" data-label="New / Empty">New / Empty</button>
+      <button class="pbtn" data-template="screenRoom" data-label="Screen Room">Screen Room</button>
+      <button class="pbtn" data-template="pergola" data-label="Pergola">Pergola</button>
+      <button class="pbtn" data-template="poolEnclosure" data-label="Pool Enclosure">Pool Enclosure</button>
+      <button class="pbtn" data-template="lanai" data-label="Lanai">Lanai</button>
+      <button class="pbtn" data-template="custom1" data-label="Custom 1">Custom 1</button>
+      <button class="pbtn" data-template="custom2" data-label="Custom 2">Custom 2</button>
+      <button class="pbtn" data-template="custom3" data-label="Custom 3">Custom 3</button>
+    </div>
+    <div class="small" id="currentProjectText">
+      Current project: New / Empty
+    </div>
+
+    <table class="services-table" id="servicesTable">
+      <thead>
+        <tr>
+          <th style="width: 21%;">Service</th>
+          <th style="width: 8%;">Width</th>
+          <th style="width: 8%;">Length</th>
+          <th style="width: 8%;">Qty</th>
+          <th style="width: 13%;">Unit type</th>
+          <th style="width: 11%;">Unit price</th>
+          <th style="width: 9%;">Disc %</th>
+          <th style="width: 11%;">Line disc</th>
+          <th style="width: 11%;">Line total</th>
+          <th style="width: 4%;"></th>
+        </tr>
+      </thead>
+      <tbody id="lineItemsBody">
+      </tbody>
+    </table>
+    <div class="add-row">
+      <button class="btn secondary" id="addRowBtn">+ Add service</button>
+    </div>
+
+    <div class="card">
+      <h2>Totals & Overall Discount</h2>
+      <div class="line">
+        <span>Subtotal (before discounts)</span>
+        <span id="subtotalText">$0.00</span>
+      </div>
+      <div class="line">
+        <span>Line discounts total</span>
+        <span id="lineDiscountsText">-$0.00</span>
+      </div>
+
+      <div class="line" style="gap:8px;">
+        <div style="flex:1;">
+          <label class="discount-label" for="globalDiscountInput">Extra discount % on total</label>
+          <input type="number" id="globalDiscountInput" min="0" max="100" step="1" value="0">
+        </div>
+        <div style="flex:1;">
+          <label class="discount-label">Extra discount amount</label>
+          <div style="text-align:right;font-size:13px;" id="globalDiscountAmountText">$0.00</div>
+        </div>
+      </div>
+
+      <div class="line big">
+        <span>Total after all discounts</span>
+        <span id="grandTotalText">$0.00</span>
+      </div>
+      <div class="small">
+        B = descuento por servicio (Disc %). C = descuento general al final (Extra discount % on total).
+      </div>
+    </div>
+
+    <div class="card total-card">
+      <div class="line big">
+        <span>Total to say to client</span>
+        <span id="clientTotalText">$0.00</span>
+      </div>
+      <div class="small">
+        Puedes redondear mentalmente antes de decirlo (ej: 8,945 → 8,900 o 8,950).
+      </div>
+    </div>
+
+    <div class="admin-toggle">
+      <button class="btn secondary" id="toggleAdminBtn">Show admin (edit services & prices)</button>
+    </div>
+
+    <div class="admin-panel" id="adminPanel">
+      <div class="card">
+        <h2 style="margin-top:0;">Admin – Services & Prices</h2>
+        <div class="small">
+          Edita nombre del servicio, unidad (solo texto para ti) y precio. “Empty service 1–6” son espacios vacíos para que los uses como quieras.
+        </div>
+        <table class="admin">
+          <thead>
+            <tr>
+              <th style="width:40%;">Service name</th>
+              <th style="width:25%;">Unit label</th>
+              <th style="width:20%;">Unit price</th>
+            </tr>
+          </thead>
+          <tbody id="servicesAdminBody"></tbody>
+        </table>
+        <div class="admin-actions">
+          <button class="btn secondary" id="resetBtn">Reset to default</button>
+          <button class="btn" id="saveBtn">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // PIN para entrar al Admin. Puedes cambiarlo aquí.
+    const ADMIN_PIN = "2580"; // por ejemplo 2580
+
+    const defaultServices = [
+      "Screen Room",
+      "Lanai (Screen Porch)",
+      "Pergola",
+      "Pool Enclosure",
+      "Screen Cage",
+      "Screen Enclosure",
+      "Decorative Wall",
+      "Accent Wall",
+      "Accent Decoration",
+      "Re-screen",
+      "Rescreen on Pool Enclosure",
+      "Rescreen on Screen Porch / Lanai",
+      "Single Screen Panel Replacement",
+      "20/20 Screen",
+      "Florida Glass Screen (Privacy Screen)",
+      "Other Special Screen",
+      "Door (New)",
+      "Door Replacement",
+      "Vinyl Window / Vinyl Door",
+      "Glass Window / Glass Door",
+      "Super Gutter",
+      "Super Gutter Replacement",
+      "Kickplate",
+      "Pool Enclosure Repair",
+      "Pressure Washing",
+      "Concrete Floor",
+      "Footer",
+      "Sod / Grass Removal",
+      "Fastener Replacement",
+      "Fan Install",
+      "LED Lights Install",
+      // Empty services
+      "Empty service 1",
+      "Empty service 2",
+      "Empty service 3",
+      "Empty service 4",
+      "Empty service 5",
+      "Empty service 6",
+      // Partes Screen Room
+      "SR - Roof (Insulated / Pan Roof)",
+      "SR - Screen Walls",
+      "SR - Screen Door",
+      "SR - Kickplate",
+      "SR - Screen (20/20 / Florida Glass)",
+      // Partes Pergola
+      "PG - Structure / Frame",
+      "PG - Roof Panels / Slats",
+      "PG - Decorative Beams",
+      "PG - Lights / Fan / Wiring",
+      // Partes Pool Enclosure
+      "PE - Roof",
+      "PE - Screen Walls",
+      "PE - Doors",
+      "PE - Kickplate",
+      "PE - Super Gutter",
+      // Partes Lanai
+      "LN - Screen Walls",
+      "LN - Screen Door",
+      "LN - Kickplate",
+      "LN - Concrete / Pavers"
+    ];
+
+    const templates = {
+      empty: [],
+      screenRoom: [
+        { name: "SR - Roof (Insulated / Pan Roof)", unitType: "sqft_rect" },
+        { name: "SR - Screen Walls", unitType: "sqft_rect" },
+        { name: "SR - Screen Door", unitType: "each" },
+        { name: "SR - Kickplate", unitType: "linear" },
+        { name: "SR - Screen (20/20 / Florida Glass)", unitType: "sqft_rect" }
+      ],
+      pergola: [
+        { name: "PG - Structure / Frame", unitType: "sqft_rect" },
+        { name: "PG - Roof Panels / Slats", unitType: "sqft_rect" },
+        { name: "PG - Decorative Beams", unitType: "linear" },
+        { name: "PG - Lights / Fan / Wiring", unitType: "each" }
+      ],
+      poolEnclosure: [
+        { name: "PE - Roof", unitType: "sqft_rect" },
+        { name: "PE - Screen Walls", unitType: "sqft_rect" },
+        { name: "PE - Doors", unitType: "each" },
+        { name: "PE - Kickplate", unitType: "linear" },
+        { name: "PE - Super Gutter", unitType: "linear" }
+      ],
+      lanai: [
+        { name: "LN - Screen Walls", unitType: "sqft_rect" },
+        { name: "LN - Screen Door", unitType: "each" },
+        { name: "LN - Kickplate", unitType: "linear" },
+        { name: "LN - Concrete / Pavers", unitType: "sqft_rect" }
+      ],
+      custom1: [
+        { name: "Empty service 1", unitType: "each" },
+        { name: "Empty service 2", unitType: "each" },
+        { name: "Empty service 3", unitType: "each" }
+      ],
+      custom2: [
+        { name: "Empty service 4", unitType: "each" },
+        { name: "Empty service 5", unitType: "each" }
+      ],
+      custom3: [
+        { name: "Empty service 6", unitType: "each" }
+      ]
+    };
+
+    const STORAGE_KEY = "proshields_estimator_config_v6";
+
+    function loadConfig() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          return defaultServices.map((name, index) => ({
+            id: "svc" + index,
+            name,
+            unitLabel: "",
+            unitPrice: 1
+          }));
+        }
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed) || parsed.length === 0) throw new Error("bad");
+        return parsed;
+      } catch (e) {
+        return defaultServices.map((name, index) => ({
+          id: "svc" + index,
+          name,
+          unitLabel: "",
+          unitPrice: 1
+        }));
+      }
+    }
+
+    function saveConfig(services) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(services));
+    }
+
+    let services = loadConfig();
+
+    const lineItemsBody = document.getElementById("lineItemsBody");
+    const addRowBtn = document.getElementById("addRowBtn");
+    const projectButtons = document.querySelectorAll(".pbtn");
+    const currentProjectText = document.getElementById("currentProjectText");
+
+    const subtotalText = document.getElementById("subtotalText");
+    const lineDiscountsText = document.getElementById("lineDiscountsText");
+    const globalDiscountInput = document.getElementById("globalDiscountInput");
+    const globalDiscountAmountText = document.getElementById("globalDiscountAmountText");
+    const grandTotalText = document.getElementById("grandTotalText");
+    const clientTotalText = document.getElementById("clientTotalText");
+
+    const toggleAdminBtn = document.getElementById("toggleAdminBtn");
+    const adminPanel = document.getElementById("adminPanel");
+    const servicesAdminBody = document.getElementById("servicesAdminBody");
+    const saveBtn = document.getElementById("saveBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    function formatMoney(v) {
+      return "$" + v.toFixed(2);
+    }
+
+    function findServiceIdByName(name) {
+      const svc = services.find(s => s.name === name);
+      return svc ? svc.id : (services[0] && services[0].id);
+    }
+
+    function createLineRow(initialServiceId, initialUnitType) {
+      const tr = document.createElement("tr");
+
+      const tdService = document.createElement("td");
+      const select = document.createElement("select");
+      services.forEach(svc => {
+        const opt = document.createElement("option");
+        opt.value = svc.id;
+        opt.textContent = svc.name;
+        select.appendChild(opt);
+      });
+      if (initialServiceId) {
+        select.value = initialServiceId;
+      }
+      tdService.appendChild(select);
+
+      const tdWidth = document.createElement("td");
+      const widthInput = document.createElement("input");
+      widthInput.type = "number";
+      widthInput.min = "0";
+      widthInput.step = "0.01";
+      widthInput.className = "number-cell";
+      tdWidth.appendChild(widthInput);
+
+      const tdLength = document.createElement("td");
+      const lengthInput = document.createElement("input");
+      lengthInput.type = "number";
+      lengthInput.min = "0";
+      lengthInput.step = "0.01";
+      lengthInput.className = "number-cell";
+      tdLength.appendChild(lengthInput);
+
+      const tdQty = document.createElement("td");
+      const qtyInput = document.createElement("input");
+      qtyInput.type = "number";
+      qtyInput.min = "0";
+      qtyInput.step = "0.01";
+      qtyInput.className = "number-cell";
+      tdQty.appendChild(qtyInput);
+
+      const tdUnitType = document.createElement("td");
+      const unitTypeSelect = document.createElement("select");
+      [
+        { value: "each", label: "each" },
+        { value: "sqft_rect", label: "sq ft (W x L)" },
+        { value: "sqft_qty", label: "sq ft (Qty)" },
+        { value: "linear", label: "linear ft" }
+      ].forEach(optDef => {
+        const opt = document.createElement("option");
+        opt.value = optDef.value;
+        opt.textContent = optDef.label;
+        unitTypeSelect.appendChild(opt);
+      });
+      unitTypeSelect.value = initialUnitType || "each";
+      tdUnitType.appendChild(unitTypeSelect);
+
+      const tdUnitPrice = document.createElement("td");
+      tdUnitPrice.className = "price-cell";
+
+      const tdLineDiscPct = document.createElement("td");
+      const discInput = document.createElement("input");
+      discInput.type = "number";
+      discInput.min = "0";
+      discInput.max = "100";
+      discInput.step = "1";
+      discInput.className = "number-cell";
+      discInput.value = "0";
+      tdLineDiscPct.appendChild(discInput);
+
+      const tdLineDiscAmt = document.createElement("td");
+      tdLineDiscAmt.className = "price-cell";
+
+      const tdLineTotal = document.createElement("td");
+      tdLineTotal.className = "price-cell";
+
+      const tdRemove = document.createElement("td");
+      const removeBtn = document.createElement("button");
+      removeBtn.textContent = "×";
+      removeBtn.className = "remove-btn";
+      tdRemove.appendChild(removeBtn);
+
+      tr.appendChild(tdService);
+      tr.appendChild(tdWidth);
+      tr.appendChild(tdLength);
+      tr.appendChild(tdQty);
+      tr.appendChild(tdUnitType);
+      tr.appendChild(tdUnitPrice);
+      tr.appendChild(tdLineDiscPct);
+      tr.appendChild(tdLineDiscAmt);
+      tr.appendChild(tdLineTotal);
+      tr.appendChild(tdRemove);
+
+      lineItemsBody.appendChild(tr);
+
+      function updateRowFromService() {
+        const svc = services.find(s => s.id === select.value) || services[0];
+        const price = parseFloat(svc.unitPrice) || 0;
+        tdUnitPrice.textContent = formatMoney(price);
+        calculateTotals();
+      }
+
+      function onAnyChange() {
+        calculateTotals();
+      }
+
+      select.addEventListener("change", updateRowFromService);
+      widthInput.addEventListener("input", onAnyChange);
+      lengthInput.addEventListener("input", onAnyChange);
+      qtyInput.addEventListener("input", onAnyChange);
+      unitTypeSelect.addEventListener("change", onAnyChange);
+      discInput.addEventListener("input", onAnyChange);
+
+      removeBtn.addEventListener("click", () => {
+        if (lineItemsBody.children.length > 1) {
+          tr.remove();
+          calculateTotals();
+        }
+      });
+
+      updateRowFromService();
+    }
+
+    function calculateTotals() {
+      let subtotal = 0;
+      let totalLineDiscount = 0;
+
+      Array.from(lineItemsBody.children).forEach(tr => {
+        const select = tr.children[0].querySelector("select");
+        const widthInput = tr.children[1].querySelector("input");
+        const lengthInput = tr.children[2].querySelector("input");
+        const qtyInput = tr.children[3].querySelector("input");
+        const unitTypeSelect = tr.children[4].querySelector("select");
+        const unitPriceCell = tr.children[5];
+        const discPctInput = tr.children[6].querySelector("input");
+        const discAmtCell = tr.children[7];
+        const lineTotalCell = tr.children[8];
+
+        const svc = services.find(s => s.id === select.value) || services[0];
+        const price = parseFloat(svc.unitPrice) || 0;
+
+        const w = parseFloat(widthInput.value) || 0;
+        const l = parseFloat(lengthInput.value) || 0;
+        const qtyField = parseFloat(qtyInput.value) || 0;
+        const unitType = unitTypeSelect.value;
+
+        let qty;
+        if (unitType === "sqft_rect") {
+          qty = w * l;
+        } else {
+          qty = qtyField;
+        }
+
+        const discPct = parseFloat(discPctInput.value) || 0;
+
+        const lineSub = price * qty;
+        const lineDisc = lineSub * (discPct / 100);
+        const lineTotal = lineSub - lineDisc;
+
+        subtotal += lineSub;
+        totalLineDiscount += lineDisc;
+
+        unitPriceCell.textContent = formatMoney(price);
+        discAmtCell.textContent = "-" + formatMoney(lineDisc);
+        lineTotalCell.textContent = formatMoney(lineTotal);
+      });
+
+      subtotalText.textContent = formatMoney(subtotal);
+      lineDiscountsText.textContent = "-" + formatMoney(totalLineDiscount);
+
+      const afterLineDiscounts = subtotal - totalLineDiscount;
+      const globalPct = parseFloat(globalDiscountInput.value) || 0;
+      const globalDisc = afterLineDiscounts * (globalPct / 100);
+      const grandTotal = afterLineDiscounts - globalDisc;
+
+      globalDiscountAmountText.textContent = "-" + formatMoney(globalDisc);
+      grandTotalText.textContent = formatMoney(grandTotal);
+      clientTotalText.textContent = formatMoney(grandTotal);
+    }
+
+    function populateAdminTable() {
+      servicesAdminBody.innerHTML = "";
+      services.forEach((svc, index) => {
+        const tr = document.createElement("tr");
+
+        const tdName = document.createElement("td");
+        const nameInput = document.createElement("input");
+        nameInput.type = "text";
+        nameInput.value = svc.name;
+        nameInput.className = "admin-input";
+        nameInput.dataset.index = index;
+        nameInput.dataset.field = "name";
+        tdName.appendChild(nameInput);
+
+        const tdUnit = document.createElement("td");
+        const unitInput = document.createElement("input");
+        unitInput.type = "text";
+        unitInput.value = svc.unitLabel || "";
+        unitInput.placeholder = "sq ft / linear ft / each";
+        unitInput.className = "admin-input";
+        unitInput.dataset.index = index;
+        unitInput.dataset.field = "unitLabel";
+        tdUnit.appendChild(unitInput);
+
+        const tdPrice = document.createElement("td");
+        const priceInput = document.createElement("input");
+        priceInput.type = "number";
+        priceInput.step = "0.01";
+        priceInput.min = "0";
+        priceInput.value = svc.unitPrice;
+        priceInput.className = "admin-input";
+        priceInput.dataset.index = index;
+        priceInput.dataset.field = "unitPrice";
+        tdPrice.appendChild(priceInput);
+
+        tr.appendChild(tdName);
+        tr.appendChild(tdUnit);
+        tr.appendChild(tdPrice);
+        servicesAdminBody.appendChild(tr);
+      });
+    }
+
+    function readAdminTable() {
+      const inputs = servicesAdminBody.querySelectorAll(".admin-input");
+      inputs.forEach(input => {
+        const index = parseInt(input.dataset.index, 10);
+        const field = input.dataset.field;
+        if (!services[index]) return;
+        if (field === "unitPrice") {
+          services[index][field] = parseFloat(input.value) || 0;
+        } else {
+          services[index][field] = input.value;
+        }
+      });
+    }
+
+    function clearActiveButtons() {
+      projectButtons.forEach(b => b.classList.remove("active"));
+    }
+
+    function applyTemplate(key, labelText) {
+      clearActiveButtons();
+      projectButtons.forEach(b => {
+        if (b.dataset.template === key) {
+          b.classList.add("active");
+        }
+      });
+
+      currentProjectText.textContent = "Current project: " + (labelText || "");
+
+      lineItemsBody.innerHTML = "";
+      const defs = templates[key] || [];
+      if (!defs.length) {
+        createLineRow();
+      } else {
+        defs.forEach(def => {
+          const id = findServiceIdByName(def.name);
+          createLineRow(id, def.unitType);
+        });
+      }
+      calculateTotals();
+    }
+
+    addRowBtn.addEventListener("click", () => {
+      createLineRow();
+      calculateTotals();
+    });
+
+    globalDiscountInput.addEventListener("input", calculateTotals);
+
+    projectButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const key = btn.dataset.template;
+        const label = btn.dataset.label || btn.textContent.trim();
+        applyTemplate(key, label);
+      });
+    });
+
+    toggleAdminBtn.addEventListener("click", () => {
+      const visible = adminPanel.style.display === "block";
+      if (visible) {
+        adminPanel.style.display = "none";
+        toggleAdminBtn.textContent = "Show admin (edit services & prices)";
+        return;
+      }
+      const pin = prompt("Enter admin PIN:");
+      if (pin === null) return;
+      if (pin === ADMIN_PIN) {
+        adminPanel.style.display = "block";
+        toggleAdminBtn.textContent = "Hide admin";
+      } else {
+        alert("Incorrect PIN");
+      }
+    });
+
+    saveBtn.addEventListener("click", () => {
+      readAdminTable();
+      saveConfig(services);
+      const currentLines = Array.from(lineItemsBody.children).length;
+      lineItemsBody.innerHTML = "";
+      for (let i = 0; i < Math.max(currentLines, 1); i++) {
+        createLineRow();
+      }
+      calculateTotals();
+      alert("Changes saved on this device.");
+    });
+
+    resetBtn.addEventListener("click", () => {
+      if (!confirm("Reset all services to default list with price = 1?")) return;
+      services = defaultServices.map((name, index) => ({
+        id: "svc" + index,
+        name,
+        unitLabel: "",
+        unitPrice: 1
+      }));
+      saveConfig(services);
+      populateAdminTable();
+      applyTemplate("empty", "New / Empty");
+      calculateTotals();
+    });
+
+    (function init() {
+      createLineRow();
+      populateAdminTable();
+      calculateTotals();
+      applyTemplate("empty", "New / Empty");
+    })();
+  </script>
+</body>
+</html>
