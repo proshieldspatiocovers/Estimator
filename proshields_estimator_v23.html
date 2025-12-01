@@ -1,0 +1,801 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ProShields Estimator v23</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 16px;
+      background: #f5f5f7;
+      color: #222;
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    h1, h2, h3 {
+      margin: 0 0 8px 0;
+      font-weight: 600;
+    }
+    h1 { font-size: 20px; }
+    h2 { font-size: 18px; }
+    h3 { font-size: 16px; }
+    label {
+      font-size: 13px;
+      display: block;
+      margin-bottom: 4px;
+    }
+    input[type="text"], input[type="number"], input[type="date"], select, textarea {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 13px;
+    }
+    textarea { resize: vertical; }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .col-3 { flex: 0 0 25%; min-width: 180px; }
+    .col-4 { flex: 0 0 33.33%; min-width: 180px; }
+    .col-6 { flex: 0 0 50%; min-width: 220px; }
+    .col-12 { flex: 0 0 100%; }
+    .btn {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .btn-primary { background: #008975; color: #fff; }
+    .btn-secondary { background: #e5e5ea; color: #222; }
+    .btn-danger { background: #ff3b30; color: #fff; }
+    .btn-small { padding: 2px 8px; font-size: 12px; }
+    .project-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .project-btn {
+      flex: 1 0 120px;
+      text-align: center;
+      border-radius: 999px;
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      background: #f2f2f7;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .project-btn.active {
+      background: #008975;
+      color: #fff;
+      border-color: #008975;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    th, td {
+      padding: 4px 6px;
+      border-bottom: 1px solid #e5e5ea;
+      text-align: left;
+    }
+    th {
+      background: #f2f2f7;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    td input[type="number"], td input[type="text"], td select {
+      width: 100%;
+      font-size: 12px;
+      padding: 4px 6px;
+    }
+    .text-right { text-align: right; }
+    .muted { color: #666; font-size: 12px; }
+    #service-picker { min-width: 260px; }
+    #saved-estimates-list div {
+      padding: 6px 0;
+      border-bottom: 1px solid #f2f2f7;
+      font-size: 13px;
+    }
+    #admin-panel { display: none; }
+    .admin-table-wrapper {
+      max-height: 360px;
+      overflow: auto;
+      border-radius: 8px;
+      border: 1px solid #e5e5ea;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: #e5e5ea;
+      margin-left: 4px;
+    }
+    #job-details {
+      margin-top: 8px;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #e5e5ea;
+      background: #fafafa;
+    }
+    .job-row { margin-bottom: 8px; }
+    .photo-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .photo-thumb {
+      width: 90px;
+      height: 90px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #ddd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f2f2f7;
+    }
+    .photo-thumb img {
+      max-width: 100%;
+      max-height: 100%;
+      display: block;
+    }
+    .unit-price-cell { display: none; } /* ocultar Unit price en la vista */
+    @media (max-width: 768px) {
+      body { padding: 10px; }
+      .col-3, .col-4, .col-6 { min-width: 140px; }
+      th, td { font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card" style="background:#008975;color:#fff;margin-bottom:12px;">
+    <h1>ProShields Estimator v23</h1>
+    <div style="font-size:13px;">
+      ProShields Patio Covers &amp; Aluminum Systems<br>
+      Licensed &amp; Insured – SCC131154086 – Internal use only
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Client info</h2>
+    <div class="row">
+      <div class="col-4">
+        <label>Client name</label>
+        <input type="text" id="client-name" placeholder="Client full name" />
+      </div>
+      <div class="col-3">
+        <label>Phone</label>
+        <input type="text" id="client-phone" placeholder="(xxx) xxx-xxxx" />
+      </div>
+      <div class="col-3">
+        <label>Date</label>
+        <input type="date" id="estimate-date" />
+      </div>
+      <div class="col-6">
+        <label>Address / Project location</label>
+        <input type="text" id="project-address" placeholder="Street, city, ZIP" />
+      </div>
+      <div class="col-3">
+        <label>Estimator</label>
+        <input type="text" id="estimator-name" placeholder="Your name" />
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <div class="col-8">
+        <h2>Project type (main category)</h2>
+        <div class="project-buttons" id="project-buttons"></div>
+        <div class="muted" id="current-project-label" style="margin-top:6px;"></div>
+      </div>
+      <div class="col-4" style="display:flex;align-items:flex-start;justify-content:flex-end;">
+        <button class="btn btn-primary" onclick="window.print()">Print / Save as PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Services</h3>
+    <div class="muted">Use the selector to add any service (Screen Room, Pergola, Extras, Concrete, etc.).</div>
+    <div style="margin-top:8px; max-height:260px; overflow:auto; border-radius:8px; border:1px solid #e5e5ea;">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:34%;">Service</th>
+            <th style="width:9%;">Width</th>
+            <th style="width:9%;">Length</th>
+            <th style="width:9%;">Height</th>
+            <th style="width:7%;">Qty</th>
+            <th style="width:12%;">Unit</th>
+            <th style="width:14%;">Line total</th>
+            <th style="width:6%;"></th>
+          </tr>
+        </thead>
+        <tbody id="service-rows-body"></tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+      <div>
+        <label for="service-picker" class="muted" style="margin-bottom:2px;">Select service to add</label>
+        <select id="service-picker">
+          <option value="">-- Choose a service --</option>
+        </select>
+      </div>
+      <button class="btn btn-secondary" id="add-service-btn">+ Add service</button>
+      <button class="btn btn-secondary btn-small" id="add-custom-line-btn">+ Custom blank line</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Totals &amp; Discount</h3>
+    <div class="row">
+      <div class="col-4">
+        <div class="muted">Subtotal (before discount)</div>
+        <div style="font-size:18px;font-weight:600;" id="subtotal-display">$0.00</div>
+      </div>
+      <div class="col-4">
+        <label>Extra discount % on total</label>
+        <input type="number" id="discount-percent" step="0.1" value="0" />
+        <div class="muted">Use the discount % only at the end if you want to close the deal.</div>
+      </div>
+      <div class="col-4">
+        <div class="muted">Discount amount</div>
+        <div id="discount-amount-display">$0.00</div>
+      </div>
+    </div>
+    <hr>
+    <div class="row">
+      <div class="col-4">
+        <div class="muted">Total after discount</div>
+        <div style="font-size:20px;font-weight:700;" id="total-after-discount-display">$0.00</div>
+      </div>
+      <div class="col-8" style="display:flex;flex-direction:column;gap:8px;">
+        <div class="card" style="background:#f2fff9;border:1px solid #b2f0d4;margin:0;">
+          <div class="muted">Total to say to client</div>
+          <div style="font-size:20px;font-weight:700;" id="total-to-say-display">$0.00</div>
+          <div class="muted">You can round mentally before saying it (ex: 8,945 → 8,900 or 8,950).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Project photos / Fotos del proyecto</h3>
+    <div class="row">
+      <div class="col-6">
+        <label for="photo-input">Add photos (multiple allowed)</label>
+        <input type="file" id="photo-input" accept="image/*" multiple />
+        <div class="muted">You can add several photos of the existing patio, house wall, slab, etc. They will appear in the print/PDF.</div>
+      </div>
+    </div>
+    <div id="photo-preview" class="photo-grid"></div>
+  </div>
+
+  <div class="card">
+    <h3>Detalles del trabajo / Job details</h3>
+    <div id="job-details">
+      <div class="row">
+        <div class="col-6 job-row">
+          <label for="roof-type">Tipo de techo / Roof type:</label>
+          <select id="roof-type">
+            <option value="">Seleccione… / Select…</option>
+            <option value="3insulated">Techo insulado 3"</option>
+            <option value="4insulated">Techo insulado 4"</option>
+            <option value="pan">Pan roof</option>
+            <option value="screen">Screen roof</option>
+            <option value="pergola">Pergola / Louvered</option>
+            <option value="other">Otro (describir abajo)</option>
+          </select>
+        </div>
+        <div class="col-6 job-row">
+          <label for="connection-type">Conexión a la casa / Connection type:</label>
+          <select id="connection-type">
+            <option value="">Seleccione… / Select…</option>
+            <option value="fascia">A la fascia</option>
+            <option value="wall">A la pared (wall connection)</option>
+            <option value="overhang">Sobre el overhang / roof</option>
+            <option value="supergutter">Con super gutter nuevo</option>
+            <option value="existing-gutter">Usando gutter existente</option>
+            <option value="freestanding">Estructura independiente (freestanding)</option>
+          </select>
+        </div>
+        <div class="col-6 job-row">
+          <label for="concrete-drainage">Concreto y drenaje / Concrete &amp; drainage:</label>
+          <select id="concrete-drainage">
+            <option value="">Seleccione… / Select…</option>
+            <option value="existing-slab">Usa losa existente</option>
+            <option value="new-slab">Incluye nueva losa de concreto</option>
+            <option value="footers-only">Solo footers 12&quot; x 12&quot;</option>
+            <option value="pavers">Sobre pavers existentes</option>
+            <option value="other">Otro (describir abajo)</option>
+          </select>
+        </div>
+        <div class="col-6 job-row">
+          <label for="panels-frames">Paneles y marcos / Panels &amp; frames:</label>
+          <textarea id="panels-frames" rows="2" placeholder="Ej: Screen 18/14, kickplate 16'', decorative wall panels, etc."></textarea>
+        </div>
+        <div class="col-6 job-row">
+          <label for="optional-accessories">Accesorios opcionales / Optional accessories:</label>
+          <textarea id="optional-accessories" rows="2" placeholder="Ej: LED lights, ceiling fans, outlets, extra doors, etc."></textarea>
+        </div>
+        <div class="col-6 job-row">
+          <label for="general-notes">Notas generales del trabajo / General notes:</label>
+          <textarea id="general-notes" rows="3" placeholder="Cualquier detalle adicional del trabajo que quieras dejar escrito."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Saved estimates (this device)</h3>
+    <div class="muted">These are stored only on this iPad/phone (local storage).</div>
+    <div id="saved-estimates-list" style="margin-top:8px;"></div>
+  </div>
+
+  <div style="text-align:center;margin-bottom:40px;">
+    <button class="btn btn-secondary" id="toggle-admin-btn">Show admin (edit services, prices & project names)</button>
+  </div>
+
+  <div class="card" id="admin-panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+      <h3>Admin – Services, prices & project names</h3>
+      <button class="btn btn-secondary btn-small" id="hide-admin-btn">Hide admin</button>
+    </div>
+    <div class="muted" style="margin-bottom:8px;">
+      Edit the list of services used by the estimator. Project code examples:
+      <span class="badge">SR = Screen Room</span>
+      <span class="badge">PE = Pool Enclosure</span>
+      <span class="badge">PG = Pergola</span>
+      <span class="badge">LN = Lanai</span>
+      <span class="badge">PR = Patio Roof</span>
+      <span class="badge">EX = Extra (any project)</span>
+    </div>
+
+    <div class="admin-table-wrapper">
+      <table id="admin-services-table">
+        <thead>
+          <tr>
+            <th style="width:8%;">Project</th>
+            <th style="width:32%;">Service name</th>
+            <th style="width:16%;">Unit label (visible)</th>
+            <th style="width:16%;">Unit calc type</th>
+            <th style="width:10%;">Unit price</th>
+            <th style="width:8%;">Active</th>
+            <th style="width:6%;"></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;">
+      <button class="btn btn-secondary btn-small" id="admin-add-line-btn">+ Add admin line</button>
+      <button class="btn btn-primary btn-small" id="admin-save-btn">Save changes</button>
+      <button class="btn btn-danger btn-small" id="admin-reset-btn">Reset to default</button>
+    </div>
+  </div>
+
+  <script>
+    const PROJECTS = [
+      { code: 'SR', label: 'Screen Room' },
+      { code: 'PE', label: 'Pool Enclosure / Screen Cage' },
+      { code: 'PG', label: 'Pergola' },
+      { code: 'LN', label: 'Lanai' },
+      { code: 'CP', label: 'Carport' },
+      { code: 'SN', label: 'Sunroom' },
+      { code: 'PR', label: 'Patio Roof' },
+      { code: 'MP', label: 'Motorized Screen Cage Pergola' },
+      { code: 'EX', label: 'Extra (any project)' },
+      { code: 'CU', label: 'Custom / Other' }
+    ];
+
+    const UNIT_TYPES = [
+      { code: 'each', label: 'each' },
+      { code: 'sqft_wl', label: 'sq ft (W x L)' },
+      { code: 'sqft_lh', label: 'sq ft (L x H)' },
+      { code: 'sqft_qty', label: 'sq ft (Qty)' },
+      { code: 'lf', label: 'linear ft' }
+    ];
+
+    const DEFAULT_SERVICES = [
+      { id: 'SR_3roof', project: 'SR', name: '3" Insulated Roof', unitLabel: 'sq ft (W x L)', unitType: 'sqft_wl', unitPrice: 18, active: true },
+      { id: 'SR_front_wall', project: 'SR', name: 'Screen Wall front side', unitLabel: 'sq ft (L x H)', unitType: 'sqft_lh', unitPrice: 7, active: true },
+      { id: 'SR_left_wall', project: 'SR', name: 'Screen Wall left side', unitLabel: 'sq ft (L x H)', unitType: 'sqft_lh', unitPrice: 7, active: true },
+      { id: 'SR_right_wall', project: 'SR', name: 'Screen Wall right side', unitLabel: 'sq ft (L x H)', unitType: 'sqft_lh', unitPrice: 7, active: true },
+      { id: 'SR_kickplate', project: 'SR', name: 'Kickplate', unitLabel: 'each', unitType: 'each', unitPrice: 100, active: true },
+      { id: 'SR_door36', project: 'SR', name: 'Door 36"', unitLabel: 'each', unitType: 'each', unitPrice: 200, active: true },
+      { id: 'EX_concrete4', project: 'EX', name: '4" Concrete Slab', unitLabel: 'sq ft (W x L)', unitType: 'sqft_wl', unitPrice: 12, active: true },
+      { id: 'EX_footers', project: 'EX', name: 'Footers 12" x 12"', unitLabel: 'linear ft', unitType: 'lf', unitPrice: 12, active: true },
+      { id: 'EX_concrete4_footers', project: 'EX', name: '4" Concrete slab and Footers', unitLabel: 'sq ft (W x L)', unitType: 'sqft_wl', unitPrice: 12, active: false },
+      { id: 'EX_tearout', project: 'EX', name: 'Tear Out', unitLabel: 'each', unitType: 'each', unitPrice: 1, active: true },
+      { id: 'EX_remove_grass', project: 'EX', name: 'Removal Grass', unitLabel: 'each', unitType: 'each', unitPrice: 1, active: true },
+      { id: 'EX_led_light', project: 'EX', name: 'LED Light', unitLabel: 'each', unitType: 'each', unitPrice: 50, active: true },
+      { id: 'EX_fan_install', project: 'EX', name: 'Fan Installation', unitLabel: 'each', unitType: 'each', unitPrice: 200, active: true },
+      { id: 'EX_kickplate_replace', project: 'EX', name: 'Kickplate Replace', unitLabel: 'linear ft', unitType: 'lf', unitPrice: 15, active: true },
+      { id: 'EX_screen_door_replace', project: 'EX', name: '36" Screen Door Replace', unitLabel: 'each', unitType: 'each', unitPrice: 250, active: true },
+      { id: 'EX_supergutter_replace', project: 'EX', name: '7" Super Gutter Replace', unitLabel: 'linear ft', unitType: 'lf', unitPrice: 60, active: true },
+      { id: 'EX_decorative_wall', project: 'EX', name: 'Decorative Wall', unitLabel: 'each', unitType: 'each', unitPrice: 1, active: true }
+    ];
+
+    let servicesConfig = [];
+    let currentProject = 'SR';
+    let estimates = [];
+
+    function loadState() {
+      const servicesStr = localStorage.getItem('ps_services_v23');
+      servicesConfig = servicesStr ? JSON.parse(servicesStr) : DEFAULT_SERVICES.slice();
+      const estStr = localStorage.getItem('ps_estimates_v23');
+      estimates = estStr ? JSON.parse(estStr) : [];
+    }
+    function saveServices() { localStorage.setItem('ps_services_v23', JSON.stringify(servicesConfig)); }
+    function saveEstimates() { localStorage.setItem('ps_estimates_v23', JSON.stringify(estimates)); }
+
+    function formatMoney(val) { return '$' + (val || 0).toFixed(2); }
+
+    function renderProjectButtons() {
+      const container = document.getElementById('project-buttons');
+      container.innerHTML = '';
+      PROJECTS.forEach(p => {
+        if (p.code === 'EX') return; // EX solo para lista de servicios
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'project-btn' + (p.code === currentProject ? ' active' : '');
+        btn.textContent = p.label;
+        btn.dataset.code = p.code;
+        btn.addEventListener('click', () => {
+          currentProject = p.code;
+          document.querySelectorAll('.project-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          updateCurrentProjectLabel();
+        });
+        container.appendChild(btn);
+      });
+      updateCurrentProjectLabel();
+    }
+
+    function updateCurrentProjectLabel() {
+      const proj = PROJECTS.find(p => p.code === currentProject);
+      document.getElementById('current-project-label').textContent =
+        proj ? 'Current project: ' + proj.label : '';
+    }
+
+    function getActiveServices() { return servicesConfig.filter(s => s.active); }
+
+    function renderServicePicker() {
+      const select = document.getElementById('service-picker');
+      select.innerHTML = '<option value="">-- Choose a service --</option>';
+      PROJECTS.forEach(p => {
+        const group = getActiveServices().filter(s => s.project === p.code);
+        if (!group.length) return;
+        const og = document.createElement('optgroup');
+        og.label = p.label;
+        group.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s.id;
+          opt.textContent = s.name + ' — ' + s.unitLabel + ' @ ' + formatMoney(s.unitPrice);
+          og.appendChild(opt);
+        });
+        select.appendChild(og);
+      });
+    }
+
+    const UNIT_TYPES_MAP = {
+      each: 'each',
+      sqft_wl: 'sq ft (W x L)',
+      sqft_lh: 'sq ft (L x H)',
+      sqft_qty: 'sq ft (Qty)',
+      lf: 'linear ft'
+    };
+
+    function addServiceRow(serviceConfig) {
+      const tbody = document.getElementById('service-rows-body');
+      const tr = document.createElement('tr');
+      tr.dataset.serviceId = serviceConfig ? serviceConfig.id : '';
+
+      tr.innerHTML = `
+        <td><input type="text" class="srv-name"></td>
+        <td><input type="number" step="0.01" class="srv-width"></td>
+        <td><input type="number" step="0.01" class="srv-length"></td>
+        <td><input type="number" step="0.01" class="srv-height"></td>
+        <td><input type="number" step="0.01" class="srv-qty" value="1"></td>
+        <td>
+          <select class="srv-unit-type"></select>
+          <div class="muted srv-unit-label" style="font-size:10px;"></div>
+        </td>
+        <td class="text-right srv-line-total">$0.00</td>
+        <td><button type="button" class="btn btn-danger btn-small srv-remove">x</button></td>
+        <td class="unit-price-cell"><input type="number" step="0.01" class="srv-unit-price" /></td>
+      `;
+
+      const nameInput = tr.querySelector('.srv-name');
+      const widthInput = tr.querySelector('.srv-width');
+      const lengthInput = tr.querySelector('.srv-length');
+      const heightInput = tr.querySelector('.srv-height');
+      const qtyInput = tr.querySelector('.srv-qty');
+      const unitSelect = tr.querySelector('.srv-unit-type');
+      const unitLabel = tr.querySelector('.srv-unit-label');
+      const priceInput = tr.querySelector('.srv-unit-price');
+      const removeBtn = tr.querySelector('.srv-remove');
+
+      UNIT_TYPES.forEach(u => {
+        const opt = document.createElement('option');
+        opt.value = u.code;
+        opt.textContent = u.label;
+        unitSelect.appendChild(opt);
+      });
+
+      if (serviceConfig) {
+        nameInput.value = serviceConfig.name;
+        unitSelect.value = serviceConfig.unitType;
+        unitLabel.textContent = serviceConfig.unitLabel;
+        priceInput.value = serviceConfig.unitPrice;
+      } else {
+        unitSelect.value = 'each';
+        unitLabel.textContent = UNIT_TYPES_MAP['each'];
+        priceInput.value = 0;
+      }
+
+      function recalc() { updateRow(tr); }
+      [widthInput, lengthInput, heightInput, qtyInput, unitSelect, priceInput].forEach(el => {
+        el.addEventListener('input', recalc);
+        el.addEventListener('change', recalc);
+      });
+      removeBtn.addEventListener('click', () => { tr.remove(); updateTotals(); });
+
+      tbody.appendChild(tr);
+      updateRow(tr);
+    }
+
+    function updateRow(tr) {
+      const width = parseFloat(tr.querySelector('.srv-width').value) || 0;
+      const length = parseFloat(tr.querySelector('.srv-length').value) || 0;
+      const height = parseFloat(tr.querySelector('.srv-height').value) || 0;
+      const qty = parseFloat(tr.querySelector('.srv-qty').value) || 0;
+      const unitType = tr.querySelector('.srv-unit-type').value;
+      const price = parseFloat(tr.querySelector('.srv-unit-price').value) || 0;
+
+      let units = 0;
+      if (unitType === 'each') {
+        units = qty || 1;
+      } else if (unitType === 'sqft_wl') {
+        units = width * length;
+      } else if (unitType === 'sqft_lh') {
+        units = length * height; // Largo x Alto
+      } else if (unitType === 'sqft_qty') {
+        units = qty;
+      } else if (unitType === 'lf') {
+        units = length;
+      }
+
+      const lineTotal = units * price;
+      tr.querySelector('.srv-line-total').textContent = formatMoney(lineTotal);
+      updateTotals();
+    }
+
+    function updateTotals() {
+      const rows = Array.from(document.querySelectorAll('#service-rows-body tr'));
+      let subtotal = 0;
+      rows.forEach(tr => {
+        const text = tr.querySelector('.srv-line-total').textContent.replace('$','') || '0';
+        subtotal += parseFloat(text) || 0;
+      });
+      const discountPct = parseFloat(document.getElementById('discount-percent').value) || 0;
+      const discountAmount = subtotal * (discountPct / 100);
+      const totalAfter = subtotal - discountAmount;
+      document.getElementById('subtotal-display').textContent = formatMoney(subtotal);
+      document.getElementById('discount-amount-display').textContent = '-' + formatMoney(discountAmount).substring(1);
+      document.getElementById('total-after-discount-display').textContent = formatMoney(totalAfter);
+      document.getElementById('total-to-say-display').textContent = formatMoney(totalAfter);
+    }
+
+    function renderSavedEstimates() {
+      const list = document.getElementById('saved-estimates-list');
+      list.innerHTML = '';
+      if (!estimates.length) {
+        list.innerHTML = '<div class="muted">No saved estimates yet.</div>';
+        return;
+      }
+      estimates.slice().reverse().forEach(est => {
+        const div = document.createElement('div');
+        div.innerHTML = '<strong>' + (est.client || 'No name') + '</strong> — ' + est.project +
+          ' — ' + formatMoney(est.total) + '<br><span class="muted">' + est.date + '</span>';
+        list.appendChild(div);
+      });
+    }
+
+    function initAdminTable() {
+      const tbody = document.querySelector('#admin-services-table tbody');
+      tbody.innerHTML = '';
+      servicesConfig.forEach(svc => {
+        const tr = document.createElement('tr');
+        tr.dataset.id = svc.id;
+        tr.innerHTML = `
+          <td><select class="adm-project"></select></td>
+          <td><input type="text" class="adm-name"></td>
+          <td><input type="text" class="adm-unit-label"></td>
+          <td><select class="adm-unit-type"></select></td>
+          <td><input type="number" step="0.01" class="adm-unit-price"></td>
+          <td style="text-align:center;"><input type="checkbox" class="adm-active"></td>
+          <td><button type="button" class="btn btn-danger btn-small adm-remove">x</button></td>
+        `;
+        const projSel = tr.querySelector('.adm-project');
+        PROJECTS.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.code;
+          opt.textContent = p.code;
+          projSel.appendChild(opt);
+        });
+        projSel.value = svc.project;
+        const unitSel = tr.querySelector('.adm-unit-type');
+        UNIT_TYPES.forEach(u => {
+          const opt = document.createElement('option');
+          opt.value = u.code;
+          opt.textContent = u.label;
+          unitSel.appendChild(opt);
+        });
+        unitSel.value = svc.unitType;
+        tr.querySelector('.adm-name').value = svc.name;
+        tr.querySelector('.adm-unit-label').value = svc.unitLabel;
+        tr.querySelector('.adm-unit-price').value = svc.unitPrice;
+        tr.querySelector('.adm-active').checked = svc.active;
+        tr.querySelector('.adm-remove').addEventListener('click', () => tr.remove());
+        tbody.appendChild(tr);
+      });
+    }
+
+    function syncAdminToConfig() {
+      const rows = Array.from(document.querySelectorAll('#admin-services-table tbody tr'));
+      const newConfig = [];
+      rows.forEach((tr, idx) => {
+        const id = tr.dataset.id || ('ADM_' + idx + '_' + Date.now());
+        newConfig.push({
+          id,
+          project: tr.querySelector('.adm-project').value || 'EX',
+          name: tr.querySelector('.adm-name').value || ('Service ' + (idx+1)),
+          unitLabel: tr.querySelector('.adm-unit-label').value || 'each',
+          unitType: tr.querySelector('.adm-unit-type').value || 'each',
+          unitPrice: parseFloat(tr.querySelector('.adm-unit-price').value) || 0,
+          active: tr.querySelector('.adm-active').checked
+        });
+      });
+      servicesConfig = newConfig;
+      saveServices();
+      renderServicePicker();
+    }
+
+    function addAdminEmptyRow() {
+      const tbody = document.querySelector('#admin-services-table tbody');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><select class="adm-project"></select></td>
+        <td><input type="text" class="adm-name" placeholder="Service name"></td>
+        <td><input type="text" class="adm-unit-label" placeholder="Unit label"></td>
+        <td><select class="adm-unit-type"></select></td>
+        <td><input type="number" step="0.01" class="adm-unit-price" value="0"></td>
+        <td style="text-align:center;"><input type="checkbox" class="adm-active" checked></td>
+        <td><button type="button" class="btn btn-danger btn-small adm-remove">x</button></td>
+      `;
+      const projSel = tr.querySelector('.adm-project');
+      PROJECTS.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.code;
+        opt.textContent = p.code;
+        projSel.appendChild(opt);
+      });
+      projSel.value = 'EX';
+      const unitSel = tr.querySelector('.adm-unit-type');
+      UNIT_TYPES.forEach(u => {
+        const opt = document.createElement('option');
+        opt.value = u.code;
+        opt.textContent = u.label;
+        unitSel.appendChild(opt);
+      });
+      unitSel.value = 'each';
+      tr.querySelector('.adm-remove').addEventListener('click', () => tr.remove());
+      tbody.appendChild(tr);
+    }
+
+    function initPhotos() {
+      const input = document.getElementById('photo-input');
+      const preview = document.getElementById('photo-preview');
+      input.addEventListener('change', () => {
+        preview.innerHTML = '';
+        const files = Array.from(input.files || []);
+        files.slice(0, 20).forEach(file => {
+          if (!file.type.startsWith('image/')) return;
+          const reader = new FileReader();
+          reader.onload = e => {
+            const div = document.createElement('div');
+            div.className = 'photo-thumb';
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            div.appendChild(img);
+            preview.appendChild(div);
+          };
+          reader.readAsDataURL(file);
+        });
+      });
+    }
+
+    function init() {
+      loadState();
+      renderProjectButtons();
+      renderServicePicker();
+      renderSavedEstimates();
+      initPhotos();
+
+      document.getElementById('add-service-btn').addEventListener('click', () => {
+        const select = document.getElementById('service-picker');
+        const id = select.value;
+        if (!id) { alert('Select a service to add.'); return; }
+        const cfg = servicesConfig.find(s => s.id === id);
+        if (!cfg) { alert('Service not found in config.'); return; }
+        addServiceRow(cfg);
+      });
+
+      document.getElementById('add-custom-line-btn').addEventListener('click', () => {
+        addServiceRow(null);
+      });
+
+      document.getElementById('discount-percent').addEventListener('input', updateTotals);
+
+      document.getElementById('toggle-admin-btn').addEventListener('click', () => {
+        const panel = document.getElementById('admin-panel');
+        const visible = panel.style.display === 'block';
+        panel.style.display = visible ? 'none' : 'block';
+        document.getElementById('toggle-admin-btn').textContent =
+          visible ? 'Show admin (edit services, prices & project names)' : 'Hide admin';
+        if (!visible) initAdminTable();
+      });
+      document.getElementById('hide-admin-btn').addEventListener('click', () => {
+        document.getElementById('admin-panel').style.display = 'none';
+        document.getElementById('toggle-admin-btn').textContent =
+          'Show admin (edit services, prices & project names)';
+      });
+      document.getElementById('admin-add-line-btn').addEventListener('click', addAdminEmptyRow);
+      document.getElementById('admin-save-btn').addEventListener('click', () => {
+        syncAdminToConfig();
+        alert('Admin services saved.');
+      });
+      document.getElementById('admin-reset-btn').addEventListener('click', () => {
+        if (!confirm('Reset services to default list?')) return;
+        servicesConfig = DEFAULT_SERVICES.slice();
+        saveServices();
+        initAdminTable();
+        renderServicePicker();
+        alert('Services reset to defaults.');
+      });
+
+      document.getElementById('discount-percent').value = 0;
+      addServiceRow(null);
+      updateTotals();
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
